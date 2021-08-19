@@ -27,9 +27,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 #SECRET_KEY="django-insecure-&3+d1f0y-*^p)4h4yyc%*ke(d(=^xn#0gm+xoxp=0=%kalnvd$"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["https://apnamau.herokuapp.com/", "localhost"]
+ALLOWED_HOSTS = ["https://apnamau.herokuapp.com/"]
 
 
 # Application definition
