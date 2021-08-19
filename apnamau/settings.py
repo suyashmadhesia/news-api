@@ -24,11 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY")
+#SECRET_KEY="django-insecure-&3+d1f0y-*^p)4h4yyc%*ke(d(=^xn#0gm+xoxp=0=%kalnvd$"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["https://apnamau.herokuapp.com/"]
+ALLOWED_HOSTS = ["https://apnamau.herokuapp.com/", "localhost"]
 
 
 # Application definition
@@ -41,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
     'api',
 ]
 
