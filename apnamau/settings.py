@@ -59,6 +59,7 @@ MIDDLEWARE = [
 # AUTH_USER_MODEL = ''
 
 ROOT_URLCONF = 'apnamau.urls'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 TEMPLATES = [
     {
