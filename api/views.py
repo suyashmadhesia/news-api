@@ -1,26 +1,27 @@
-import json
-from django.db.models.query import QuerySet
 
+import re
+from typing import Tuple
+from rest_framework.pagination import CursorPagination
+from api.paginator import FeedPaginator
+
+from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
 from rest_framework import status
-from rest_framework.authentication import BasicAuthentication
-from rest_framework.exceptions import bad_request
-from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.generics import GenericAPIView, ListAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from . models import Post
 from . serializers import *
 
-# Create your views here.
 
-
-class HomeView(APIView):
+@method_decorator(never_cache, name="dispatch")
+class HomeView(ListAPIView):
     permission_classes = [AllowAny]
-
-    def get(self, request):
-        data = Post.objects.all().order_by('created_at')
-        serializers = NewsSerializer(data, many=True)
-        return Response(serializers.data, status=status.HTTP_200_OK)
+    # authentication_classes = [AllowAny]
+    pagination_class = FeedPaginator
+    serializer_class = NewsSerializer
+    queryset = Post.objects.all()
 
 
 class SingleNewsView(APIView):
@@ -28,12 +29,12 @@ class SingleNewsView(APIView):
 
     def get(self, request, pk, format=None):
         try:
-            post = Post.objects.get(post_id=pk)
-            serializers = SingleNewsSerializer(post)
+            post = Post.objects.filter(post_id=pk)
+            serializer = SingleNewsSerializer(post, many=True)
         except:
             return Response({"Message": "Data Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
-        return Response(serializers.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CommentView(APIView):
@@ -44,7 +45,7 @@ class CommentView(APIView):
         try:
             post = Post.objects.get(post_id=data["post_id"])
         except:
-            return Response({'message': 'Error Post Id is not Given'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Error Post Id is not Given or Post Id is worng'}, status=status.HTTP_400_BAD_REQUEST)
         data["comment_id"] = comment_id_generator()
         serializer = CommentSerializer(data=data)
         if serializer.is_valid():
@@ -53,62 +54,17 @@ class CommentView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class FetchComments(APIView):
+class NewsViewByCategory(GenericAPIView):
+    serializer_class = NewsSerializer
     permission_classes = [AllowAny]
+    queryset = None
+    pagination_class = FeedPaginator
+    
 
     def get(self, request, pk):
-
-        comments = Post.objects.get(
-            post_id=pk).comments.all().order_by("created_at")
-        serializers = CommentSerializer(comments, many=True)
-
-        return Response(serializers.data, status=status.HTTP_200_OK)
-
-
-class NewsViewByCategory(APIView):
-    permission_classes = [AllowAny]
-
-    def get(self, request, pk):
-        data = Post.objects.filter(category=pk).order_by('created_at')
-        serializers = NewsSerializer(data, many=True)
-        return Response(serializers.data, status=status.HTTP_200_OK)
-
-
-class AdminView(APIView):
-    permission_classes = [IsAdminUser]
-    authentication_classes = [BasicAuthentication]
-
-    def get(self, request):
-        posts = Post.objects.all().order_by('created_at')
-        serializer = AdminViewSerializer(posts, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request):
-        raw_data = request.data
-        data = {}
-        try:
-            data["post_id"] = news_id_generator()
-            data["image_url"] = raw_data["image_url"]
-            data["video_url"] = raw_data["video_url"]
-            data["title"] = raw_data["title"]
-            data["news_body"] = raw_data["news"]
-
-            data["category"] = Category.objects.get(
-                code_name=raw_data["category"])
-        except:
-            return Response({"message": " Error ! Invalid Data"}, status=status.HTTP_400_BAD_REQUEST)
-        print(data)
-        serializer = AdminViewSerializer(data=data)
-        if serializer.is_valid():
-            Post.objects.create(**data)
-            return Response({"message": "Posted !"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request):
-        data = request.data
-        post = Post.objects.get(post_id=data['post_id'])
-        comment = post.comments.all().order_by("created_at")
-        if(len(comment) > 0):
-            comment.delete()
-        post.delete()
-        return Response({"message": "Deleted !"}, status=status.HTTP_200_OK)
+        self.queryset = Post.objects.filter(category__code_name=pk)
+        page = self.paginate_queryset(self.queryset)
+        if page is not None:
+            serializer = NewsSerializer(page, many=True)
+            result = self.get_paginated_response(serializer.data)
+            return Response(result.data)

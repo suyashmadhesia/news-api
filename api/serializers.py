@@ -37,15 +37,8 @@ class NewsSerializer(serializers.ModelSerializer):
 class SingleNewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = [
-            'post_id',
-            'title',
-            'news_body',
-            'image_url',
-            'video_url',
-            'created_at',
-            'comments'
-        ]
+        fields = '__all__'
+        depth = 1
 
 
 class AdminViewSerializer(serializers.ModelSerializer):
