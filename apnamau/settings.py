@@ -24,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY")
-#SECRET_KEY="django-insecure-&3+d1f0y-*^p)4h4yyc%*ke(d(=^xn#0gm+xoxp=0=%kalnvd$"
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["https://apnamau.herokuapp.com/", "localhost"]
+ALLOWED_HOSTS = ["https://apnamau.herokuapp.com/"]
 
 
 # Application definition
@@ -76,6 +76,12 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES' : (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
 
 WSGI_APPLICATION = 'apnamau.wsgi.application'
 
