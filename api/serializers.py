@@ -26,9 +26,9 @@ class NewsSerializer(serializers.ModelSerializer):
             'post_id',
             'title',
             'category',
-            'news_body',
+            # 'news_body',
             'image_url',
-            'video_url',
+            # 'video_url',
             'created_at',
         ]
         
