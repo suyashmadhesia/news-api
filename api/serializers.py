@@ -1,4 +1,3 @@
-from django.db.models import fields
 from . models import *
 from . utils import *
 from rest_framework import serializers
@@ -26,19 +25,11 @@ class NewsSerializer(serializers.ModelSerializer):
             'post_id',
             'title',
             'category',
-            # 'news_body',
+            'news_body',
             'image_url',
-            # 'video_url',
+            'video_url',
             'created_at',
         ]
-        
-
-
-class SingleNewsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Post
-        fields = '__all__'
-        depth = 1
 
 
 class AdminViewSerializer(serializers.ModelSerializer):

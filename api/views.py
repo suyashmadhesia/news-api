@@ -1,7 +1,4 @@
 
-import re
-from typing import Tuple
-from rest_framework.pagination import CursorPagination
 from api.paginator import FeedPaginator
 
 from django.views.decorators.cache import never_cache
@@ -18,23 +15,9 @@ from . serializers import *
 @method_decorator(never_cache, name="dispatch")
 class HomeView(ListAPIView):
     permission_classes = [AllowAny]
-    # authentication_classes = [AllowAny]
     pagination_class = FeedPaginator
     serializer_class = NewsSerializer
     queryset = Post.objects.all()
-
-
-class SingleNewsView(APIView):
-    permission_classes = [AllowAny]
-
-    def get(self, request, pk, format=None):
-        try:
-            post = Post.objects.filter(post_id=pk)
-            serializer = SingleNewsSerializer(post, many=True)
-        except:
-            return Response({"Message": "Data Not Found"}, status=status.HTTP_404_NOT_FOUND)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CommentView(APIView):
@@ -59,7 +42,6 @@ class NewsViewByCategory(GenericAPIView):
     permission_classes = [AllowAny]
     queryset = None
     pagination_class = FeedPaginator
-    
 
     def get(self, request, pk):
         self.queryset = Post.objects.filter(category__code_name=pk)
@@ -68,3 +50,15 @@ class NewsViewByCategory(GenericAPIView):
             serializer = NewsSerializer(page, many=True)
             result = self.get_paginated_response(serializer.data)
             return Response(result.data)
+
+
+class FetchComments(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, pk):
+        try:
+            comments = Post.objects.get(post_id=pk).comments.all()
+            serializers = CommentSerializer(comments, many=True)
+        except:
+            return Response({"error": "No Comments founds"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializers.data, status=status.HTTP_200_OK)

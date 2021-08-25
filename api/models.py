@@ -1,3 +1,4 @@
+from datetime import datetime
 from api.utils import get_ist
 from django.db import models
 
@@ -14,7 +15,7 @@ class Comment(models.Model):
     comment_id = models.CharField(max_length=30, default='', primary_key=True)
     name = models.CharField(max_length=20, blank=False)
     email = models.EmailField(blank=False, default='')
-    created_at = models.DateTimeField(default=get_ist())
+    created_at = models.DateTimeField(auto_now=True)
     comment = models.TextField(blank=False)
 
     def __str__(self) -> str:
@@ -29,7 +30,7 @@ class Post(models.Model):
     news_body = models.TextField(blank=True)
     image_url = models.CharField(max_length=150, blank=True, default='')
     video_url = models.CharField(max_length=150, blank=True, default='')
-    created_at = models.DateTimeField(default=get_ist())
+    created_at = models.DateTimeField(auto_now=True)
     comments = models.ManyToManyField(
         Comment, blank=True, related_name='news_comment', default='')
 

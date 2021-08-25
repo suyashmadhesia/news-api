@@ -3,9 +3,9 @@ from rest_framework.response import Response
 
 class FeedPaginator(CursorPagination):
     page = 1
-    page_size = 5
+    page_size = 10
     cursor_query_param = 'page_size'
-    ordering = 'created_at'
+    ordering = '-created_at'
 
 
     def get_paginated_response(self, data):
