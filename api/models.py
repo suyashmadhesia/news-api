@@ -1,5 +1,3 @@
-from datetime import datetime
-from api.utils import get_ist
 from django.db import models
 
 
